@@ -59,8 +59,26 @@ class UnimolPLusEncoder(nn.Module):
                     else 0,
                     pair_dropout=pair_dropout,
                 )
-                for i in range(num_encoder_layers)
+                for i in range(num_encoder_layers - 1)
             ]
+        )
+        self.layers.append(
+            UnimolPlusEncoderLayer(
+                embedding_dim=embedding_dim,
+                pair_dim=pair_dim,
+                pair_hidden_dim=pair_hidden_dim,
+                ffn_embedding_dim=ffn_embedding_dim,
+                num_attention_heads=num_attention_heads,
+                dropout=dropout,
+                attention_dropout=attention_dropout,
+                activation_dropout=activation_dropout,
+                activation_fn=activation_fn,
+                droppath_prob=droppath_probs[i]
+                if droppath_probs is not None
+                else 0,
+                pair_dropout=pair_dropout,
+                pair_update_needed=False,
+            )
         )
 
     def forward(
