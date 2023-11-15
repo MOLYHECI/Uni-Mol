@@ -80,49 +80,50 @@ class UnimolPlusLoss(UnicoreLoss):
         else:
             loss = torch.tensor(0.0, device=targets.device)
 
-        atom_mask = sample["batched_data"]["atom_mask"].float()
-        if pos_target_mask is not None:
-            atom_mask = atom_mask * pos_target_mask.float()
-        pos_target = sample["batched_data"]["pos_target"].float() * atom_mask.unsqueeze(
-            -1
-        )
+        # atom_mask = sample["batched_data"]["atom_mask"].float()
+        # if pos_target_mask is not None:
+        #     atom_mask = atom_mask * pos_target_mask.float()
+        # pos_target = sample["batched_data"]["pos_target"].float() * atom_mask.unsqueeze(
+        #     -1
+        # )
 
-        def get_pos_loss(pos_pred):
-            pos_pred = pos_pred.float() * atom_mask.unsqueeze(-1)
-            pos_loss = torch.nn.L1Loss(reduction="none")(
-                pos_pred,
-                pos_target,
-            ).sum(dim=(-1, -2))
-            pos_cnt = atom_mask.sum(dim=-1) + 1e-10
-            pos_loss = (pos_loss / pos_cnt).sum()
-            return pos_loss
+        # def get_pos_loss(pos_pred):
+        #     pos_pred = pos_pred.float() * atom_mask.unsqueeze(-1)
+        #     pos_loss = torch.nn.L1Loss(reduction="none")(
+        #         pos_pred,
+        #         pos_target,
+        #     ).sum(dim=(-1, -2))
+        #     pos_cnt = atom_mask.sum(dim=-1) + 1e-10
+        #     pos_loss = (pos_loss / pos_cnt).sum()
+        #     return pos_loss
 
-        pos_loss = get_pos_loss(pos_pred)
+        # pos_loss = get_pos_loss(pos_pred)
 
-        pair_mask = atom_mask.unsqueeze(-1) * atom_mask.unsqueeze(-2).float()
-        dist_target = (pos_target.unsqueeze(-2) - pos_target.unsqueeze(-3)).norm(dim=-1)
-        dist_target = dist_target * pair_mask
-        dist_cnt = pair_mask.sum(dim=(-1, -2)) + 1e-10
+        # pair_mask = atom_mask.unsqueeze(-1) * atom_mask.unsqueeze(-2).float()
+        # dist_target = (pos_target.unsqueeze(-2) - pos_target.unsqueeze(-3)).norm(dim=-1)
+        # dist_target = dist_target * pair_mask
+        # dist_cnt = pair_mask.sum(dim=(-1, -2)) + 1e-10
 
-        def get_dist_loss(dist_pred, return_sum=True):
-            dist_pred = dist_pred.float() * pair_mask
-            dist_loss = torch.nn.L1Loss(reduction="none")(
-                dist_pred,
-                dist_target,
-            ).sum(dim=(-1, -2))
-            if return_sum:
-                return (dist_loss / dist_cnt).sum()
-            else:
-                return dist_loss / dist_cnt
+        # def get_dist_loss(dist_pred, return_sum=True):
+        #     dist_pred = dist_pred.float() * pair_mask
+        #     dist_loss = torch.nn.L1Loss(reduction="none")(
+        #         dist_pred,
+        #         dist_target,
+        #     ).sum(dim=(-1, -2))
+        #     if return_sum:
+        #         return (dist_loss / dist_cnt).sum()
+        #     else:
+        #         return dist_loss / dist_cnt
 
-        dist_loss = get_dist_loss(dist_pred)
+        # dist_loss = get_dist_loss(dist_pred)
 
-        total_loss = loss + dist_loss_weight * dist_loss + pos_loss_weight * pos_loss
+        total_loss = loss 
+        # + dist_loss_weight * dist_loss + pos_loss_weight * pos_loss
         logging_output = {
             "loss": loss.data,
             "ewt_metric": energy_within_threshold,
-            "dist_loss": dist_loss.data,
-            "pos_loss": pos_loss.data,
+            # "dist_loss": dist_loss.data,
+            # "pos_loss": pos_loss.data,
             "total_loss": total_loss.data,
             "sample_size": sample_size,
             "nsentences": sample_size,

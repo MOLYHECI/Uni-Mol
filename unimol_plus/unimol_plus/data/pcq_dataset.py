@@ -126,30 +126,30 @@ class PCQDataset(BaseWrapperDataset):
 
             use_label = False
             use_mid = False
-            if self.is_train:
-                p = np.random.rand()
-                if p < self.label_prob:
-                    use_label = True
-                elif p < self.label_prob + self.mid_prob:
-                    use_mid = True
-            if use_label:
-                feat["pos"] = (
-                    pos_target
-                    + self.noise
-                    * torch.from_numpy(np.random.randn(*pos_target.shape)).float()
-                )
-            elif use_mid:
-                q = np.random.uniform(self.mid_lower, self.mid_upper)
-                pos = torch.from_numpy(pos).float()
-                R, T = get_optimal_transform(pos, pos_target)
-                pos = pos @ R + T
-                feat["pos"] = q * pos + (1 - q) * (
-                    pos_target
-                    + self.noise
-                    * torch.from_numpy(np.random.randn(*pos_target.shape)).float()
-                )
-            else:
-                feat["pos"] = torch.from_numpy(pos).float()
+            # if self.is_train:
+            #     p = np.random.rand()
+            #     if p < self.label_prob:
+            #         use_label = True
+            #     elif p < self.label_prob + self.mid_prob:
+            #         use_mid = True
+            # if use_label:
+            #     feat["pos"] = (
+            #         pos_target
+            #         + self.noise
+            #         * torch.from_numpy(np.random.randn(*pos_target.shape)).float()
+            #     )
+            # elif use_mid:
+            #     q = np.random.uniform(self.mid_lower, self.mid_upper)
+            #     pos = torch.from_numpy(pos).float()
+            #     R, T = get_optimal_transform(pos, pos_target)
+            #     pos = pos @ R + T
+            #     feat["pos"] = q * pos + (1 - q) * (
+            #         pos_target
+            #         + self.noise
+            #         * torch.from_numpy(np.random.randn(*pos_target.shape)).float()
+            #     )
+            # else:
+            feat["pos"] = torch.from_numpy(pos).float()
 
             def zero_center(pos):
                 return pos - pos.mean(0, keepdim=True)

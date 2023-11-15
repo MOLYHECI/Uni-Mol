@@ -244,10 +244,10 @@ class UnimolPlusPCQModel(BaseUnicoreModel):
             stop=args.gaussian_mean_stop,
         )
         self.energy_head = EnergyHead(args.embed_dim, 1)
-        self.movement_pred_head = MovementPredictionHead(
-            args.embed_dim, args.pair_embed_dim, args.attention_heads
-        )
-        self.movement_pred_head.zero_init()
+        # self.movement_pred_head = MovementPredictionHead(
+        #     args.embed_dim, args.pair_embed_dim, args.attention_heads
+        # )
+        # self.movement_pred_head.zero_init()
         self._num_updates = 0
         self.dtype = torch.float32
 
@@ -318,27 +318,28 @@ class UnimolPlusPCQModel(BaseUnicoreModel):
                 pair_mask=pair_mask,
                 attn_mask=attn_mask,
             )
-            node_output = self.movement_pred_head(
-                x[:, 1:, :],
-                pair[:, 1:, 1:, :],
-                attn_mask[:, :, 1:, 1:],
-                delta_pos.detach(),
-            )
-            node_output = node_output * self.args.pos_step_size
-            return x, pair, pos + node_output
+            # node_output = self.movement_pred_head(
+            #     x[:, 1:, :],
+            #     pair[:, 1:, 1:, :],
+            #     attn_mask[:, :, 1:, 1:],
+            #     delta_pos.detach(),
+            # )
+            # node_output = node_output * self.args.pos_step_size
+            return x, pair, pos
+            # + node_output
 
         pair = attn_bias.type(dtype)
-        for _ in range(num_block):
-            x, pair, pos = one_block(x, pair, pos)
+        # for _ in range(num_block):
+        x, pair, pos = one_block(x, pair, pos)
         pred_y = self.energy_head(x[:, 0, :]).view(-1)
 
-        pred_dist = (pos.unsqueeze(1) - pos.unsqueeze(2)).norm(dim=-1)
+        # pred_dist = (pos.unsqueeze(1) - pos.unsqueeze(2)).norm(dim=-1)
 
         return (
             pred_y,
-            pos,
             None,
-            pred_dist,
+            None,
+            None,
             self._num_updates,
         )
 

@@ -651,19 +651,19 @@ class UnimolPlusEncoderLayer(nn.Module):
         # layer norm associated with the position wise feed-forward NN
         self.final_layer_norm = LayerNorm(self.embedding_dim)
 
-        self.opm = OuterProduct(self.embedding_dim, pair_dim, d_hid=pair_hidden_dim)
-        self.pair_layer_norm_opm = LayerNorm(pair_dim)
+        # self.opm = OuterProduct(self.embedding_dim, pair_dim, d_hid=pair_hidden_dim)
+        # self.pair_layer_norm_opm = LayerNorm(pair_dim)
 
-        self.pair_layer_norm_ffn = LayerNorm(pair_dim)
-        self.pair_ffn = Transition(
-            pair_dim,
-            1,
-            dropout=activation_dropout,
-        )
+        # self.pair_layer_norm_ffn = LayerNorm(pair_dim)
+        # self.pair_ffn = Transition(
+        #     pair_dim,
+        #     1,
+        #     dropout=activation_dropout,
+        # )
 
-        self.pair_dropout = pair_dropout
-        self.pair_layer_norm_trimul = LayerNorm(pair_dim)
-        self.pair_tri_mul = TriangleMultiplication(pair_dim, pair_hidden_dim)
+        # self.pair_dropout = pair_dropout
+        # self.pair_layer_norm_trimul = LayerNorm(pair_dim)
+        # self.pair_tri_mul = TriangleMultiplication(pair_dim, pair_hidden_dim)
 
     def shared_dropout(self, x, shared_dim, dropout):
         shape = list(x.shape)
@@ -704,16 +704,16 @@ class UnimolPlusEncoderLayer(nn.Module):
         x = residual + x
         x = self.final_layer_norm(x)
 
-        pair = pair + self.dropout_module(self.opm(x, op_mask, op_norm))
-        pair = self.pair_layer_norm_opm(pair)
+        # pair = pair + self.dropout_module(self.opm(x, op_mask, op_norm))
+        # pair = self.pair_layer_norm_opm(pair)
 
-        pair_update = self.shared_dropout(
-            self.pair_tri_mul(pair, pair_mask), -3, self.pair_dropout
-        )
-        pair = pair + pair_update
-        pair = self.pair_layer_norm_trimul(pair)
+        # pair_update = self.shared_dropout(
+        #     self.pair_tri_mul(pair, pair_mask), -3, self.pair_dropout
+        # )
+        # pair = pair + pair_update
+        # pair = self.pair_layer_norm_trimul(pair)
 
-        # ffn
-        pair = pair + self.dropout_module(self.pair_ffn(pair))
-        pair = self.pair_layer_norm_ffn(pair)
+        # # ffn
+        # pair = pair + self.dropout_module(self.pair_ffn(pair))
+        # pair = self.pair_layer_norm_ffn(pair)
         return x, pair

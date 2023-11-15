@@ -1,6 +1,6 @@
 [ -z "${MASTER_PORT}" ] && MASTER_PORT=10088
 [ -z "${MASTER_IP}" ] && MASTER_IP=127.0.0.1
-[ -z "${n_gpu}" ] && n_gpu=$(nvidia-smi -L | wc -l)
+[ -z "${n_gpu}" ] && n_gpu=3
 [ -z "${OMPI_COMM_WORLD_SIZE}" ] && OMPI_COMM_WORLD_SIZE=1
 [ -z "${OMPI_COMM_WORLD_RANK}" ] && OMPI_COMM_WORLD_RANK=0
 
@@ -67,7 +67,7 @@ torchrun --nproc_per_node=$n_gpu --nnodes=$OMPI_COMM_WORLD_SIZE  --node_rank=$OM
       --save-interval-updates 10000 --validate-interval-updates 10000 --keep-interval-updates 50 --no-epoch-checkpoints  \
       --save-dir $save_dir \
       --batch-size $batch_size \
-      --data-buffer-size 32 --fixed-validation-seed 11 --batch-size-valid 256 \
+      --data-buffer-size 32 --fixed-validation-seed 11 --batch-size-valid 128 \
       --optimizer adam --adam-betas '(0.9, 0.999)' --adam-eps 1e-8 --clip-norm $clip_norm \
       --lr $lr --end-learning-rate $end_lr --lr-scheduler polynomial_decay --power 1 \
       --warmup-updates $warmup_steps --total-num-update $total_steps --max-update $total_steps --update-freq $update_freq \
